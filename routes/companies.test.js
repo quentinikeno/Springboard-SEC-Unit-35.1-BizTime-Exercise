@@ -36,3 +36,17 @@ describe("GET /companies", () => {
 		expect(res.body).toEqual({ companies: [testCompany] });
 	});
 });
+
+describe("GET /companies/:code", () => {
+	test("Get a object with a single company", async () => {
+		const res = await request(app).get(`/companies/${testCompany.code}`);
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({ company: testCompany });
+	});
+	test("Return 404 status code if a company cannot be found with a code.", async () => {
+		const res = await request(app).get(
+			`/companies/thiscompanydoesnotexist1234`
+		);
+		expect(res.statusCode).toBe(404);
+	});
+});
