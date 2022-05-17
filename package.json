@@ -8,5 +8,9 @@
     "start": "node server.js"
   },
   "author": "Quentin Ikeno",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "pg": "^8.7.3"
+  }
 }
