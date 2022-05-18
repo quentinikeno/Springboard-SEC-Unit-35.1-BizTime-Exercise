@@ -56,4 +56,8 @@ describe("GET /invoices/:id", () => {
 			},
 		});
 	});
+	it("Should return 404 status code if ID is not in database", async () => {
+		const res = await request(app).get(`/invoices/0`);
+		expect(res.statusCode).toBe(404);
+	});
 });
