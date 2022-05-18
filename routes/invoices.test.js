@@ -61,3 +61,21 @@ describe("GET /invoices/:id", () => {
 		expect(res.statusCode).toBe(404);
 	});
 });
+
+describe("POST /invoices", () => {
+	it("Should create a new invoice", async () => {
+		const data = { comp_code: "test", amt: 200 };
+		const res = await request(app).post("/invoices").send(data);
+		expect(res.statusCode).toBe(201);
+		expect(res.body).toEqual({
+			invoice: {
+				id: expect.any(Number),
+				comp_code: "test",
+				amt: 200,
+				paid: false,
+				add_date: expect.any(String),
+				paid_date: null,
+			},
+		});
+	});
+});

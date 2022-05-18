@@ -45,9 +45,11 @@ router.post("/", async (req, res, next) => {
 				"comp_code and amt must be included to create a new invoice.",
 				400
 			);
-		const results =
-			await ("INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING *",
-			[comp_code, amt]);
+		const results = await db.query(
+			"INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING *",
+			[comp_code, amt]
+		);
+		console.log(results);
 		return res.status(201).json({ invoice: results.rows[0] });
 	} catch (error) {
 		next(error);
