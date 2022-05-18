@@ -39,6 +39,7 @@ describe("GET /companies", () => {
 
 describe("GET /companies/:code", () => {
 	test("Get a object with a single company", async () => {
+		testCompany.invoices = [testInvoice.id];
 		const res = await request(app).get(`/companies/${testCompany.code}`);
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ company: testCompany });
