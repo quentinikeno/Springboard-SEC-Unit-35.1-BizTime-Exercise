@@ -55,7 +55,7 @@ router.put("/:code", async (req, res, next) => {
 				400
 			);
 		const results = await db.query(
-			"UPDATE companies SET name=$1, description=$2 WHERE id=$3 RETURNING *",
+			"UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING *",
 			[name, description, code]
 		);
 		if (results.rows.length === 0)

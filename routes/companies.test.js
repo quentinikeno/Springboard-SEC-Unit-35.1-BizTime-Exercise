@@ -83,3 +83,47 @@ describe("POST /companies", () => {
 		expect(res3.statusCode).toBe(400);
 	});
 });
+
+describe("PUT /companies", () => {
+	test("Updating a company", async () => {
+		const data = {
+			name: "Chewie's Peanut Brittle Company",
+			description: "This is a company that has been updated.",
+		};
+		const res = await request(app)
+			.put(`/companies/${testCompany.code}`)
+			.send(data);
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			company: {
+				code: testCompany.code,
+				name: "Chewie's Peanut Brittle Company",
+				description: "This is a company that has been updated.",
+			},
+		});
+	});
+	test("If data is missing in request return 400 status code", async () => {
+		const data1 = {
+			description: "This is a new company for testing.",
+		};
+		const data2 = {
+			name: "Brand New Company",
+		};
+		const res1 = await request(app)
+			.put(`/companies/${testCompany.code}`)
+			.send(data1);
+		const res2 = await request(app)
+			.put(`/companies/${testCompany.code}`)
+			.send(data2);
+		expect(res1.statusCode).toBe(400);
+		expect(res2.statusCode).toBe(400);
+	});
+	test("If company code is not in database return 404 status code", async () => {
+		const data = {
+			name: "Chewie's Peanut Brittle Company",
+			description: "This is a company that has been updated.",
+		};
+		const res = await request(app).put("/companies/0").send(data);
+		expect(res.statusCode).toBe(404);
+	});
+});
