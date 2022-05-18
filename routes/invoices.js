@@ -37,4 +37,21 @@ router.get("/:id", async (req, res, next) => {
 	}
 });
 
+router.post("/", async (req, res, next) => {
+	try {
+		const { comp_code, amt } = req.body;
+		if (!comp_code || !amt)
+			throw new ExpressError(
+				"comp_code and amt must be included to create a new invoice.",
+				400
+			);
+		const results =
+			await ("INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING *",
+			[comp_code, amt]);
+		return res.status(201).json({ invoice: results.rows[0] });
+	} catch (error) {
+		next(error);
+	}
+});
+
 module.exports = router;
