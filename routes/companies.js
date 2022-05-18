@@ -21,7 +21,16 @@ router.get("/:code", async (req, res, next) => {
 		);
 		if (results.rows.length === 0)
 			throw new ExpressError("Can't find a company with that code", 404);
-		return res.json({ company: results.rows[0] });
+		let companyResults = results.rows[0];
+
+		const invoiceResults = await db.query(
+			"SELECT id FROM invoices WHERE comp_code=$1",
+			[code]
+		);
+		const invoiceIDs = invoiceResults.rows.map((invoice) => invoice.id);
+		companyResults.invoices = invoiceIDs;
+
+		return res.json({ company: companyResults });
 	} catch (error) {
 		next(error);
 	}
