@@ -127,3 +127,15 @@ describe("PUT /companies", () => {
 		expect(res.statusCode).toBe(404);
 	});
 });
+
+describe("DELETE /companies/:code", () => {
+	test("Delete a company", async () => {
+		const res = await request(app).delete(`/companies/${testCompany.code}`);
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({ message: "Deleted." });
+	});
+	test("If company code is not in database return 404 status code", async () => {
+		const res = await request(app).delete("/companies/0");
+		expect(res.statusCode).toBe(404);
+	});
+});
