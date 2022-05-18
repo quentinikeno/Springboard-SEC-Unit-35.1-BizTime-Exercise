@@ -79,3 +79,32 @@ describe("POST /invoices", () => {
 		});
 	});
 });
+
+describe("PUT /invoices/:id", () => {
+	it("Should update a single invoice", async () => {
+		const res = await request(app)
+			.put(`/invoices/${testInvoice.id}`)
+			.send({ amt: 1000 });
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			invoice: {
+				id: testInvoice.id,
+				comp_code: "test",
+				amt: 1000,
+				add_date: expect.any(String),
+				paid: false,
+				paid_date: null,
+			},
+		});
+	});
+	it("Should return a 400 status code if no amt is sent in the request body", async () => {
+		const res = await request(app)
+			.put(`/invoices/${testInvoice.id}`)
+			.send({ blah: 1000 });
+		expect(res.statusCode).toBe(400);
+	});
+	it("Should return a 404 status code if invoice ID is not in database", async () => {
+		const res = await request(app).put("/invoices/0").send({ amt: 1000 });
+		expect(res.statusCode).toBe(404);
+	});
+});
