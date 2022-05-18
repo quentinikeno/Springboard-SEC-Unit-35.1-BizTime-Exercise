@@ -108,3 +108,17 @@ describe("PUT /invoices/:id", () => {
 		expect(res.statusCode).toBe(404);
 	});
 });
+
+describe("DELETE /invoices/:id", () => {
+	it("Should delete one invoice based on the ID", async () => {
+		const res = await request(app).delete(`/invoices/${testInvoice.id}`);
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			message: "Deleted.",
+		});
+	});
+	it("Should return 404 status code if ID is not in database", async () => {
+		const res = await request(app).delete(`/invoices/0`);
+		expect(res.statusCode).toBe(404);
+	});
+});
