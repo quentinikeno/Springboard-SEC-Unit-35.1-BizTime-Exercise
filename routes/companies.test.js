@@ -55,33 +55,30 @@ describe("GET /companies/:code", () => {
 describe("POST /companies", () => {
 	test("Adding a new company", async () => {
 		const data = {
-			code: "test2",
 			name: "Brand New Company",
 			description: "This is a new company for testing.",
 		};
 		const res = await request(app).post("/companies").send(data);
 		expect(res.statusCode).toBe(201);
-		expect(res.body).toEqual({ company: data });
+		expect(res.body).toEqual({
+			company: {
+				code: "brand-new-company",
+				name: "Brand New Company",
+				description: "This is a new company for testing.",
+			},
+		});
 	});
 	test("If data is missing in request return 400 status code", async () => {
 		const data1 = {
-			name: "Brand New Company",
 			description: "This is a new company for testing.",
 		};
 		const data2 = {
-			code: "test2",
-			description: "This is a new company for testing.",
-		};
-		const data3 = {
-			code: "test2",
 			name: "Brand New Company",
 		};
 		const res1 = await request(app).post("/companies").send(data1);
 		const res2 = await request(app).post("/companies").send(data2);
-		const res3 = await request(app).post("/companies").send(data3);
 		expect(res1.statusCode).toBe(400);
 		expect(res2.statusCode).toBe(400);
-		expect(res3.statusCode).toBe(400);
 	});
 });
 
