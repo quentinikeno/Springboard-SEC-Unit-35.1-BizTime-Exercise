@@ -16,8 +16,12 @@ beforeEach(async () => {
 	const invoice = await db.query(
 		"INSERT INTO invoices (comp_Code, amt, paid, paid_date) VALUES ('test', 100, false, null) RETURNING *"
 	);
+	const invoice2 = await db.query(
+		`INSERT INTO invoices (comp_Code, amt, paid, paid_date) VALUES ('test', 10, true, '2022-05-18') RETURNING *`
+	);
 	testCompany = company.rows[0];
 	testInvoice = invoice.rows[0];
+	testInvoice2 = invoice2.rows[0];
 });
 
 afterEach(async () => {
@@ -36,6 +40,7 @@ describe("GET /invoices/:invoice", () => {
 		expect(res.body).toEqual({
 			invoices: [
 				{ id: testInvoice.id, comp_code: testInvoice.comp_code },
+				{ id: testInvoice2.id, comp_code: testInvoice2.comp_code },
 			],
 		});
 	});
@@ -81,10 +86,26 @@ describe("POST /invoices", () => {
 });
 
 describe("PUT /invoices/:id", () => {
-	it("Should update a single invoice", async () => {
+	it("Should update a single invoice that is unpaid", async () => {
 		const res = await request(app)
 			.put(`/invoices/${testInvoice.id}`)
-			.send({ amt: 1000 });
+			.send({ amt: 1000, paid: true });
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			invoice: {
+				id: testInvoice.id,
+				comp_code: "test",
+				amt: 1000,
+				add_date: expect.any(String),
+				paid: true,
+				paid_date: expect.any(String),
+			},
+		});
+	});
+	it("Should not update the paid_date for a single invoice that is unpaid when paid is set to false", async () => {
+		const res = await request(app)
+			.put(`/invoices/${testInvoice.id}`)
+			.send({ amt: 1000, paid: false });
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({
 			invoice: {
@@ -97,6 +118,38 @@ describe("PUT /invoices/:id", () => {
 			},
 		});
 	});
+	it("Should update a single invoice that is paid", async () => {
+		const res = await request(app)
+			.put(`/invoices/${testInvoice2.id}`)
+			.send({ amt: 1000, paid: false });
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			invoice: {
+				id: testInvoice2.id,
+				comp_code: "test",
+				amt: 1000,
+				add_date: expect.any(String),
+				paid: false,
+				paid_date: null,
+			},
+		});
+	});
+	it("Should not update the paid_date for a single invoice that is paid when paid is set to true", async () => {
+		const res = await request(app)
+			.put(`/invoices/${testInvoice2.id}`)
+			.send({ amt: 1000, paid: true });
+		expect(res.statusCode).toBe(200);
+		expect(res.body).toEqual({
+			invoice: {
+				id: testInvoice2.id,
+				comp_code: "test",
+				amt: 1000,
+				add_date: expect.any(String),
+				paid: true,
+				paid_date: "2022-05-18T10:00:00.000Z",
+			},
+		});
+	});
 	it("Should return a 400 status code if no amt is sent in the request body", async () => {
 		const res = await request(app)
 			.put(`/invoices/${testInvoice.id}`)
@@ -104,7 +157,9 @@ describe("PUT /invoices/:id", () => {
 		expect(res.statusCode).toBe(400);
 	});
 	it("Should return a 404 status code if invoice ID is not in database", async () => {
-		const res = await request(app).put("/invoices/0").send({ amt: 1000 });
+		const res = await request(app)
+			.put("/invoices/0")
+			.send({ amt: 1000, paid: true });
 		expect(res.statusCode).toBe(404);
 	});
 });
