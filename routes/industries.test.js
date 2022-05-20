@@ -13,6 +13,9 @@ beforeEach(async () => {
 	const company = await db.query(
 		"INSERT INTO companies VALUES ('test', 'Test Company', 'This is a VERY REAL company. Legit.') RETURNING *"
 	);
+	const company2 = await db.query(
+		"INSERT INTO companies VALUES ('test2', 'Test Company 2', 'My second company.  The first one flopped.') RETURNING *"
+	);
 	const invoice = await db.query(
 		"INSERT INTO invoices (comp_code, amt, paid, paid_date) VALUES ('test', 100, false, null) RETURNING *"
 	);
@@ -23,6 +26,7 @@ beforeEach(async () => {
 		"INSERT INTO companies_industries (comp_code, industry_code) VALUES ('test', 'tech'), ('test', 'e-commerce')"
 	);
 	testCompany = company.rows[0];
+	testCompany2 = company2.rows[0];
 	testInvoice = invoice.rows[0];
 });
 
@@ -64,5 +68,18 @@ describe("POST new industry to /industries", () => {
 		const data2 = { industry: "finance" };
 		const res2 = await request(app).post("/industries").send(data2);
 		expect(res2.statusCode).toBe(400);
+	});
+});
+
+describe("POST new association for company and industry to /industries/:code/add-company", () => {
+	test("Should add a new association for company and industry", async () => {
+		const data = { comp_code: testCompany2.code };
+		const results = await request(app)
+			.post("/industries/tech/add-company")
+			.send(data);
+		expect(results.statusCode).toBe(201);
+		expect(results.body).toEqual({
+			company_industry: { comp_code: "test2", industry_code: "tech" },
+		});
 	});
 });
