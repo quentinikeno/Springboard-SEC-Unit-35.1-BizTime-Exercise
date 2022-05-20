@@ -29,7 +29,8 @@ CREATE TABLE industries (
 CREATE TABLE companies_industries (
   id serial PRIMARY KEY,
   comp_code text NOT NULL REFERENCES companies ON DELETE CASCADE,
-  industry_code text NOT NULL REFERENCES industries ON DELETE CASCADE
+  industry_code text NOT NULL REFERENCES industries ON DELETE CASCADE,
+  CONSTRAINT unqiue_comp_ind UNIQUE (comp_code,industry_code)
 );
 
 INSERT INTO companies
