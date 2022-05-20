@@ -42,4 +42,23 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
+router.post("/:code/add-company", async (req, res, next) => {
+	try {
+		const { comp_code } = req.body;
+		const { code } = req.params;
+		if (!comp_code)
+			throw new ExpressError(
+				"comp_code must be provided to create a new industry.",
+				400
+			);
+		const results = await db.query(
+			"INSERT INTO companies_industries (comp_code, industry_code) VALUES ($1, $2) RETURNING comp_code, industry_code",
+			[comp_code, code]
+		);
+		return res.status(201).json({ company_industry: results.rows[0] });
+	} catch (error) {
+		next(error);
+	}
+});
+
 module.exports = router;
