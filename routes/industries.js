@@ -57,7 +57,17 @@ router.post("/:code/add-company", async (req, res, next) => {
 		);
 		return res.status(201).json({ company_industry: results.rows[0] });
 	} catch (error) {
-		next(error);
+		if (
+			error.message ===
+			'duplicate key value violates unique constraint "unqiue_comp_ind"'
+		)
+			return next(
+				new ExpressError(
+					"Can't insert company and industry association.  Association already exits.",
+					400
+				)
+			);
+		return next(error);
 	}
 });
 

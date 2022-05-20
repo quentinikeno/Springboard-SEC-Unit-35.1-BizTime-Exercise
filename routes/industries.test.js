@@ -82,4 +82,11 @@ describe("POST new association for company and industry to /industries/:code/add
 			company_industry: { comp_code: "test2", industry_code: "tech" },
 		});
 	});
+	test("Should not add a new association for company and industry if association already exists", async () => {
+		const data = { comp_code: testCompany.code };
+		const results = await request(app)
+			.post("/industries/tech/add-company")
+			.send(data);
+		expect(results.statusCode).toBe(400);
+	});
 });
