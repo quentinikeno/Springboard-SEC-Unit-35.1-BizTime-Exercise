@@ -14,7 +14,13 @@ beforeEach(async () => {
 		"INSERT INTO companies VALUES ('test', 'Test Company', 'This is a VERY REAL company. Legit.') RETURNING *"
 	);
 	const invoice = await db.query(
-		"INSERT INTO invoices (comp_Code, amt, paid, paid_date) VALUES ('test', 100, false, null) RETURNING *"
+		"INSERT INTO invoices (comp_code, amt, paid, paid_date) VALUES ('test', 100, false, null) RETURNING *"
+	);
+	await db.query(
+		"INSERT INTO industries VALUES ('tech', 'Technology'), ('e-commerce', 'E-commerce')"
+	);
+	await db.query(
+		"INSERT INTO companies_industries (comp_code, industry_code) VALUES ('test', 'tech'), ('test', 'e-commerce')"
 	);
 	testCompany = company.rows[0];
 	testInvoice = invoice.rows[0];
@@ -23,6 +29,8 @@ beforeEach(async () => {
 afterEach(async () => {
 	await db.query("DELETE FROM companies");
 	await db.query("DELETE FROM invoices");
+	await db.query("DELETE FROM companies_industries");
+	await db.query("DELETE FROM industries");
 });
 
 afterAll(async () => {
@@ -40,6 +48,7 @@ describe("GET /companies", () => {
 describe("GET /companies/:code", () => {
 	test("Get a object with a single company", async () => {
 		testCompany.invoices = [testInvoice.id];
+		testCompany.industries = ["Technology", "E-commerce"];
 		const res = await request(app).get(`/companies/${testCompany.code}`);
 		expect(res.statusCode).toBe(200);
 		expect(res.body).toEqual({ company: testCompany });
