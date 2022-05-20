@@ -49,7 +49,6 @@ router.post("/", async (req, res, next) => {
 			"INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING *",
 			[comp_code, amt]
 		);
-		console.log(results);
 		return res.status(201).json({ invoice: results.rows[0] });
 	} catch (error) {
 		next(error);
